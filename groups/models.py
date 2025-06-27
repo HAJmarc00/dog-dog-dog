@@ -12,6 +12,7 @@ class Group(models.Model):
     is_public = models.BooleanField(default=False)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owned_groups')
     created_at = models.DateTimeField(auto_now_add=True)
+    pinned_message = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -22,9 +23,18 @@ class GroupMember(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     is_admin = models.BooleanField(default=False)
     joined_at = models.DateTimeField(auto_now_add=True)
+    is_approved = models.BooleanField(default=True)
 
     class Meta:
         unique_together = ('group', 'user')
 
     def __str__(self):
         return f"{self.user} in {self.group}"
+
+
+class GroupInvite(models.Model):
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    inviter = models.ForeignKey(User, on_delete=models.CASCADE)
+    code = models.CharField(max_length=100, unique=True)
+    is_used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
